@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 
@@ -3648,6 +3647,16 @@
         .settings-nav-item[data-section="about"]:hover i {
             animation: _kuro-pulse .45s cubic-bezier(.34,1.56,.64,1) forwards;
         }
+
+        /* Credits - address-card: pop */
+        .settings-nav-item[data-section="credits"]:hover i {
+            animation: _kuro-pop .45s ease forwards;
+        }
+
+        /* Changelog - scroll: spin */
+        .settings-nav-item[data-section="changelog"]:hover i {
+            animation: _kuro-spin .55s cubic-bezier(.34,1.56,.64,1) forwards;
+        }
         /* Fallback — rotate-left: elastic rewind (retry/rollback feel) */
         @keyframes _kuro-rewind {
             0%   { transform: rotate(0deg) scale(1); }
@@ -6113,7 +6122,7 @@
                     
                     <div id="kuroCredit"
                         style="position:absolute; bottom:20px; right:24px; z-index:10; color:rgba(255,255,255,1); font-size:18px; font-weight:600; font-family:var(--ui); display:flex; align-items:center; gap:5px; pointer-events:none; user-select:none; text-shadow:0 1px 4px rgba(0,0,0,0.6); letter-spacing:0.02em;">
-                        Made with <i class="fas fa-heart" style="color:#ff6b8a; font-size:15px;"></i> by Nautilus Labs
+                        Made with <i class="fas fa-heart" style="color:#ff6b8a; font-size:15px;"></i> by SnakierdoorCode
                     </div>
 
                     <div class="nt-content">
@@ -6468,6 +6477,10 @@
                                 <hr style="margin-top:auto; border:none; border-top:1px solid var(--bd); margin-bottom:4px; margin-left:4px; margin-right:4px; flex-shrink:0;">
                                 <button class="settings-nav-item" data-section="tutorial"><i
                                         class="fas fa-map"></i><span>Tutorial</span></button>
+                                <button class="settings-nav-item" data-section="credits"><i
+                                        class="fas fa-address-card"></i><span>Credits</span></button>
+                                <button class="settings-nav-item" data-section="changelog"><i
+                                        class="fas fa-scroll"></i><span>Changelog</span></button>
                                 <button class="settings-nav-item" data-section="about"><i
                                         class="fas fa-info-circle"></i><span>About</span></button>
                             </nav>
@@ -7476,9 +7489,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="settings-section" data-section="about" style="display:none;">
+                            <div class="settings-section" data-section="credits" style="display:none;">
                                 <div class="settings-card">
-                                    <div class="settings-card-head"><i class="fas fa-info-circle"></i> About Kuro
+                                    <div class="settings-card-head"><i class="fas fa-address-card"></i> Credits
                                     </div>
                                     <div class="settings-card-body">
                                         <div
@@ -7487,14 +7500,24 @@
                                                 <div
                                                     style="color:var(--tx); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
                                                     <i class="fa-solid fa-address-card" style="color:var(--ac);"></i>
-                                                    Credits
+                                                    Who made Kuro
                                                 </div>
                                                 <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--tx2);">
-                                                    <div style="padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid var(--bd);">
+                                                    <div style="margin-bottom:10px;">
+                                                            <div style="margin-bottom:6px;">
+                                                                <span style="color:var(--tx);font-weight:600;">SnakierdoorCode</span>
+                                                                <span style="color:var(--tx3)">— </span>
+                                                                Author &amp; maintainer of Kuro
+                                                            </div>
+                                                            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding-left:2px;">
+                                                                <a href="https://github.com/snakierdoorcode/Kuro/tree/main" target="_blank" rel="noopener" style="color:var(--ac);font-size:12px;text-decoration:none;background:rgba(201,162,255,0.08);border:1px solid rgba(201,162,255,0.2);border-radius:5px;padding:2px 8px;display:inline-flex;align-items:center;gap:5px;">Kuro repo <i class="fas fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.7;"></i></a>
+                                                            </div>
+                                                        </div>
+                                                        <div style="padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid var(--bd);">
                                                         <div style="margin-bottom:6px;">
                                                             <span style="color:var(--tx);font-weight:600;">Nautilus Labs</span>
                                                             <span style="color:var(--tx3)"> — </span>
-                                                            The team behind Kuro
+                                                            Original authors of the GUST browser this is based on
                                                         </div>
                                                         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding-left:2px;">
                                                             <a href="https://github.com/nautilus-os" target="_blank" rel="noopener" style="color:var(--ac);font-size:12px;text-decoration:none;background:rgba(201,162,255,0.08);border:1px solid rgba(201,162,255,0.2);border-radius:5px;padding:2px 8px;display:inline-flex;align-items:center;gap:5px;">Nautilus Labs <i class="fas fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.7;"></i></a><span style="color:var(--tx2);font-size:12px;margin-left:-2px;">:</span>
@@ -7560,6 +7583,95 @@
                                 </div>
                             </div>
 
+                                                        <div class="settings-section" data-section="changelog" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-scroll"></i> Changelog
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div id="kuroChangelog" class="kl-entries">Loading changelog...</div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-satellite-dish"></i> Live updates
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">Current build</div>
+                                                <div class="settings-hint">The version of index.html running right now.</div>
+                                            </div>
+                                            <span id="kuroBuildBadge" class="kl-badge">-</span>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">Update status</div>
+                                                <div class="settings-hint" id="kuroUpdStatus">Checking the update feed...</div>
+                                            </div>
+                                            <button class="settings-btn-icon" id="kuroCheckUpd" title="Check now"><i
+                                                    class="fas fa-rotate"></i></button>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div style="flex:1;min-width:0;">
+                                                <div class="settings-switch-label">Ping feed (Google Sheet CSV)</div>
+                                                <div class="settings-hint">In Google Sheets: File &rarr; Share &rarr; Publish to web
+                                                    &rarr; CSV, then paste the link here. Every open copy of Kuro polls it and
+                                                    shows the message as a bottom-right popup. Sheet columns:
+                                                    <b>id</b>, <b>title</b>, <b>message</b> &mdash; edit a cell to broadcast.</div>
+                                                <div class="kl-row" style="margin-top:8px;">
+                                                    <input type="text" class="settings-input" id="kuroPingFeed"
+                                                        placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"
+                                                        style="flex:1;min-width:200px;">
+                                                    <button class="settings-btn-icon" id="kuroPingSave" title="Save"><i
+                                                            class="fas fa-check"></i></button>
+                                                </div>
+                                                <div class="settings-hint" id="kuroPingStatus" style="margin-top:6px;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">Last broadcast received</div>
+                                                <div class="settings-hint" id="kuroLastPing">Nothing yet.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+<div class="settings-section" data-section="about" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-info-circle"></i> About Kuro
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div style="display:flex; flex-direction:column; gap:16px; font-size:13px; line-height:1.7; color:var(--tx2);">
+                                            <div>
+                                                <div style="color:var(--tx); font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+                                                    <i class="fas fa-bolt" style="color:var(--ac);"></i>
+                                                    Kuro
+                                                </div>
+                                                Kuro is a fast, private browser with fully customizable skins, a built-in proxy and a single self-contained file. Made with lots of love by SnakierdoorCode.
+                                            </div>
+                                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                                <div style="display:flex;align-items:flex-start;gap:10px;">
+                                                    <span style="color:var(--tx);font-weight:600;min-width:96px;">Author</span>
+                                                    <span>SnakierdoorCode</span>
+                                                </div>
+                                                <div style="display:flex;align-items:flex-start;gap:10px;">
+                                                    <span style="color:var(--tx);font-weight:600;min-width:96px;">Repository</span>
+                                                    <a href="https://github.com/snakierdoorcode/Kuro/tree/main" target="_blank" rel="noopener" style="color:var(--ac);text-decoration:none;font-family:var(--mono);font-size:12px;word-break:break-all;">github.com/snakierdoorcode/Kuro</a>
+                                                </div>
+                                                <div style="display:flex;align-items:flex-start;gap:10px;">
+                                                    <span style="color:var(--tx);font-weight:600;min-width:96px;">Based on</span>
+                                                    <span>GUST by Nautilus Labs</span>
+                                                </div>
+                                            </div>
+                                            <a href="https://github.com/snakierdoorcode/Kuro/tree/main" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 16px;background:var(--ac);color:#000;font-weight:600;font-size:13px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;">
+                                                <i class="fab fa-github"></i> View source on GitHub
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- ── Fallback settings section ── -->
                             <div class="settings-section" data-section="fallback" style="display:none;">
@@ -8272,8 +8384,8 @@ const UNI_JUMBO=/^(\s*(\p{Emoji_Presentation}|\p{Extended_Pictographic}|<a?:\w+:
 function renderMarkdown(text, big){
   if(!text) return '';
   const codes=[]; // protect code blocks
-  text=text.replace(/```(?:(\w+)\n)?([\s\S]*?)```/g,(m,l,c)=>{codes.push(`<pre class="block">${esc(c)}</pre>`);return `${codes.length-1}`;});
-  text=text.replace(/`([^`\n]+)`/g,(m,c)=>{codes.push(`<code class="inline">${esc(c)}</code>`);return `${codes.length-1}`;});
+  text=text.replace(/```(?:(\w+)\n)?([\s\S]*?)```/g,(m,l,c)=>{codes.push(`<pre class="block">${esc(c)}</pre>`);return ` ${codes.length-1} `;});
+  text=text.replace(/`([^`\n]+)`/g,(m,c)=>{codes.push(`<code class="inline">${esc(c)}</code>`);return ` ${codes.length-1} `;});
   let h=esc(text);
   // custom emoji
   h=h.replace(/&lt;(a?):(\w+):(\d+)&gt;/g,(m,a,n,id)=>imgTag(`${CDN}/emojis/${id}.${a?'gif':'png'}?size=48`,'emoji'+(big?' jumbo':''),':'+n+':'));
@@ -8300,7 +8412,7 @@ function renderMarkdown(text, big){
   h=h.replace(/\*([^*]+)\*/g,'<i>$1</i>').replace(/(?<!\w)_([^_]+)_(?!\w)/g,'<i>$1</i>');
   h=h.replace(/~~([^~]+)~~/g,'<s>$1</s>');
   // restore code
-  h=h.replace(/(\d+)/g,(m,i)=>codes[+i]);
+  h=h.replace(/ (\d+) /g,(m,i)=>codes[+i]);
   return h;
 }
 
@@ -21404,7 +21516,7 @@ _VIEWER_DL_JS +
                 if (e.key === "Enter") ntSearchBtn.click();
             };
             const ntGithubBtn = $("ntGithubBtn");
-            if (ntGithubBtn) ntGithubBtn.onclick = () => window.open("https://github.com/nautilus-os/GUST", "_blank", "noopener,noreferrer");
+            if (ntGithubBtn) ntGithubBtn.onclick = () => window.open("https://github.com/snakierdoorcode/Kuro/tree/main", "_blank", "noopener,noreferrer");
 
             ntWallpaperBtn.onclick = () => {
                 $("wallpaperUrlInput").value = "";
@@ -23171,7 +23283,7 @@ _VIEWER_DL_JS +
                     target: null,
                     icon: '<i class="fas fa-bolt"></i>',
                     title: 'Welcome to Kuro',
-                    body: 'A fast, private browser by Nautilus Labs. This tour covers all the key controls and takes under a minute, and can be restarted anytime from Settings.',
+                    body: 'A fast, private browser by SnakierdoorCode. This tour covers all the key controls and takes under a minute, and can be restarted anytime from Settings.',
                     pos: 'center'
                 },
                 {
@@ -23303,7 +23415,7 @@ _VIEWER_DL_JS +
                     target: null,
                     icon: '<i class="fas fa-check-circle"></i>',
                     title: "You're all set!",
-                    body: "That's the full tour! Kuro is made with lots of love by the Nautilus Labs dev team, and we'd be overjoyed if you gave our repository a star on GitHub. Enjoy the experience!",
+                    body: "That's the full tour! Kuro is made with lots of love by SnakierdoorCode, and we'd be overjoyed if you gave our repository a star on GitHub. Enjoy the experience!",
                     pos: 'center'
                 }
             ];
@@ -24547,7 +24659,9 @@ _VIEWER_DL_JS +
                     skins: mi('fa-solid fa-mask', 'Skins', () => go('kuro://settings/skins')),
                     settings: mi('fa-solid fa-gear', 'Settings', () => go('kuro://settings')),
                     fullscreen: mi('fa-solid fa-expand', 'Fullscreen', () => { const b = $('fullscreenBtn'); if (b) b.click(); }),
-                    about: mi('fa-solid fa-circle-info', 'About Kuro', () => go('kuro://settings/about'))
+                    about: mi('fa-solid fa-circle-info', 'About Kuro', () => go('kuro://settings/about')),
+                    credits: mi('fa-solid fa-address-card', 'Credits', () => go('kuro://settings/credits')),
+                    changelog: mi('fa-solid fa-scroll', 'Changelog', () => go('kuro://settings/changelog'))
                 };
 
                 // ── Chrome 150 ⋮ menu — full item set with accelerators & submenus ──
@@ -24611,8 +24725,8 @@ _VIEWER_DL_JS +
                     SEP,
                     mi('mi:help', 'Help', null, { sub: [
                         mi('mi:help', 'About Google Chrome', () => go('kuro://settings/about')),
-                        mi('mi:open-in-new', "What's new", () => createTab('https://github.com/nautilus-os')),
-                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/nautilus-os'))
+                        mi('mi:open-in-new', "What's new", () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main')),
+                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main'))
                     ] }),
                     mi('mi:settings', 'Settings', () => go('kuro://settings')),
                     mi('mi:logout', 'Exit', () => { try { window.close(); } catch (_) {} })
@@ -27000,7 +27114,7 @@ _VIEWER_DL_JS +
                     SEP,
                     mi('mi:help', 'Help', null, { sub: [
                         mi('mi:help', 'About Brave', () => go('kuro://settings/about')),
-                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/nautilus-os'))
+                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main'))
                     ] }),
                     mi('mi:settings', 'Settings', () => go('kuro://settings')),
                     mi('mi:logout', 'Exit', () => { try { window.close(); } catch (_) {} })
@@ -27037,7 +27151,7 @@ _VIEWER_DL_JS +
                     ] }),
                     mi('', 'Help', null, { sub: [
                         mi('', 'About Firefox', () => go('kuro://settings/about')),
-                        mi('', 'Report broken site...', () => createTab('https://github.com/nautilus-os'))
+                        mi('', 'Report broken site...', () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main'))
                     ] }),
                     SEP,
                     mi('', 'Quit', () => { try { window.close(); } catch (_) {} }, { accel: 'Ctrl+Shift+Q' })
@@ -28692,6 +28806,658 @@ _VIEWER_DL_JS +
             </div>
         </div>
     </div>
+
+<style id="kuroLiveStyle">
+/* ---- Kuro live layer: bottom-right popups, changelog, updates ---- */
+#klToasts {
+    position: fixed;
+    right: 20px;
+    bottom: 76px;
+    z-index: 2147483000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+    pointer-events: none;
+    font-family: var(--ui, 'Segoe UI', sans-serif);
+}
+
+.kl-pop {
+    pointer-events: auto;
+    width: 356px;
+    max-width: calc(100vw - 40px);
+    background: linear-gradient(180deg, rgba(34, 29, 47, .98), rgba(18, 14, 24, .98));
+    border: 1px solid rgba(201, 162, 255, .34);
+    border-radius: 14px;
+    box-shadow: 0 18px 46px rgba(0, 0, 0, .55);
+    overflow: hidden;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform .34s cubic-bezier(.34, 1.3, .64, 1), opacity .24s ease;
+}
+
+.kl-pop.kl-in {
+    transform: none;
+    opacity: 1;
+}
+
+.kl-pop.kl-out {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.kl-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(201, 162, 255, .10);
+    border-bottom: 1px solid rgba(201, 162, 255, .18);
+}
+
+.kl-head i {
+    color: var(--ac, #c9a2ff);
+    font-size: 13px;
+}
+
+.kl-title {
+    flex: 1;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kl-x {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, .5);
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 4px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.kl-x:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+}
+
+.kl-body {
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, .84);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 230px;
+    overflow: auto;
+}
+
+.kl-acts {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    padding: 0 12px 12px;
+}
+
+.kl-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.kl-btn.kl-ok {
+    background: var(--ac, #c9a2ff);
+    color: #000;
+}
+
+.kl-btn.kl-ok:hover {
+    filter: brightness(1.12);
+}
+
+.kl-btn.kl-ghost {
+    background: rgba(255, 255, 255, .09);
+    color: rgba(255, 255, 255, .78);
+}
+
+.kl-btn.kl-ghost:hover {
+    background: rgba(255, 255, 255, .18);
+}
+
+.kl-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.kl-ehead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.kl-badge {
+    font-family: var(--mono, 'JetBrains Mono', monospace);
+    font-size: 12px;
+    color: var(--ac, #c9a2ff);
+    background: rgba(201, 162, 255, .10);
+    border: 1px solid rgba(201, 162, 255, .26);
+    border-radius: 6px;
+    padding: 2px 8px;
+}
+
+.kl-date {
+    font-size: 11.5px;
+    color: var(--tx3, #7b7590);
+}
+
+.kl-etitle {
+    color: var(--tx, #fff);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.kl-now {
+    font-size: 11px;
+    color: var(--ac, #c9a2ff);
+    opacity: .85;
+}
+
+.kl-notes {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--tx2, #a9a3bd);
+    font-size: 12.5px;
+    line-height: 1.65;
+}
+
+.kl-notes li {
+    margin: 3px 0;
+}
+
+.kl-muted {
+    font-size: 12px;
+    color: var(--tx3, #7b7590);
+}
+
+.kl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+</style>
+
+<script>
+(function () {
+    'use strict';
+
+    /* Build id embedded in THIS file - must match version.json when you ship. */
+    var KURO_BUILD = '2026-09-30.1';
+    /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
+    var REPO_RAW = 'https://cdn.jsdelivr.net/gh/snakierdoorcode/Kuro@main/';
+    /* Optional default Google Sheet CSV URL - can also be pasted in Settings > Changelog. */
+    var PING_FEED_DEFAULT = '';
+    var PING_MS = 30000;
+    var UPDATE_MS = 60000;
+
+    var store = (typeof ls !== 'undefined' && ls) ? ls : {
+        getItem: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+        setItem: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { } },
+        removeItem: function (k) { try { localStorage.removeItem(k); } catch (e) { } }
+    };
+
+    var EMBEDDED_CHANGELOG = [
+        {
+            build: '2026-09-30.1',
+            date: '2026-09-30',
+            title: 'Live layer',
+            notes: [
+                'Welcome popup in the bottom-right corner (shown once per browser)',
+                'Broadcast pings - a custom message pops up for everyone viewing this page',
+                'Auto-update prompt with an "Update now" button when a new build ships',
+                'New Settings > Changelog page with the full history',
+                'Kuro rebrand with the purple theme'
+            ]
+        }
+    ];
+
+    /* ------------------------------------------------------------------ */
+    /* fetching: the libcurl/WISP pipeline first (works framed or not),    */
+    /* then window.fetch (only answers when the shell frame is present),   */
+    /* then XHR. Every hop has its own deadline so polling never stalls.   */
+    /* ------------------------------------------------------------------ */
+    function deadline(p, ms, tag) {
+        var slow = new Promise(function (_, rej) {
+            setTimeout(function () { rej(new Error(tag || 'timeout')); }, ms);
+        });
+        return Promise.race([p, slow]);
+    }
+
+    function getText(url) {
+        var errs = [];
+
+        var viaProxy = (typeof queueFetch === 'function' && typeof decodeBuf === 'function')
+            ? deadline(
+                queueFetch(url, { internal: true }, (typeof PRIORITY !== 'undefined' && PRIORITY.fetch) || 1)
+                    .then(function (r) { return decodeBuf(r); }),
+                15000, 'proxy timeout')
+            : Promise.reject(new Error('no proxy'));
+
+        return viaProxy.catch(function (e) {
+            errs.push('proxy: ' + (e && e.message));
+            var p;
+            try { p = Promise.resolve(window.fetch(url, { cache: 'no-store' })).then(function (r) {
+                if (r && r.ok) return r.text();
+                throw new Error('http ' + (r ? r.status : '?'));
+            }); } catch (e1) { p = Promise.reject(e1); }
+            return deadline(p, 6000, 'fetch timeout').catch(function (e2) {
+                errs.push('fetch: ' + (e2 && e2.message));
+                return deadline(new Promise(function (res, rej) {
+                    var x = new XMLHttpRequest();
+                    x.open('GET', url, true);
+                    x.onload = function () {
+                        (x.status >= 200 && x.status < 300) ? res(x.responseText) : rej(new Error('http ' + x.status));
+                    };
+                    x.onerror = function () { rej(new Error('xhr error')); };
+                    x.send();
+                }), 8000, 'xhr timeout').catch(function (e3) {
+                    errs.push('xhr: ' + (e3 && e3.message));
+                    throw new Error(errs.join(' | '));
+                });
+            });
+        });
+    }
+
+    function getJson(url) {
+        return getText(url).then(function (s) { return JSON.parse(s); });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* bottom-right popups                                                 */
+    /* ------------------------------------------------------------------ */
+    function host() {
+        var h = document.getElementById('klToasts');
+        if (!h) {
+            h = document.createElement('div');
+            h.id = 'klToasts';
+            document.body.appendChild(h);
+        }
+        return h;
+    }
+
+    function popup(opts) {
+        opts = opts || {};
+        var wrap = document.createElement('div');
+        wrap.className = 'kl-pop';
+
+        var head = document.createElement('div');
+        head.className = 'kl-head';
+        head.innerHTML = '<i class="fas ' + (opts.icon || 'fa-bolt') + '"></i>' +
+            '<span class="kl-title"></span>' +
+            '<button class="kl-x" title="Close" aria-label="Close">&times;</button>';
+        head.querySelector('.kl-title').textContent = opts.title || 'Kuro';
+
+        var body = document.createElement('div');
+        body.className = 'kl-body';
+        body.textContent = opts.body || '';
+
+        var acts = document.createElement('div');
+        acts.className = 'kl-acts';
+        var buttons = (opts.buttons && opts.buttons.length) ? opts.buttons : [{ label: 'OK', primary: true }];
+        var close;
+        buttons.forEach(function (b) {
+            var btn = document.createElement('button');
+            btn.className = 'kl-btn ' + (b.primary ? 'kl-ok' : 'kl-ghost');
+            btn.textContent = b.label;
+            btn.addEventListener('click', function () {
+                close();
+                if (typeof b.onClick === 'function') { try { b.onClick(); } catch (e) { } }
+            });
+            acts.appendChild(btn);
+        });
+
+        wrap.appendChild(head);
+        wrap.appendChild(body);
+        wrap.appendChild(acts);
+
+        var h = host();
+        h.appendChild(wrap);
+        while (h.children.length > 3) h.removeChild(h.firstChild);
+
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { wrap.classList.add('kl-in'); });
+        });
+
+        var closed = false;
+        close = function () {
+            if (closed) return;
+            closed = true;
+            wrap.classList.remove('kl-in');
+            wrap.classList.add('kl-out');
+            setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 380);
+            if (typeof opts.onClose === 'function') { try { opts.onClose(); } catch (e) { } }
+        };
+        head.querySelector('.kl-x').addEventListener('click', close);
+        return { close: close };
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* welcome                                                             */
+    /* ------------------------------------------------------------------ */
+    function welcome() {
+        if (store.getItem('kuro:welcome:v1') === '1') return;
+        var tries = 0;
+        function show() {
+            if (store.getItem('kuro:welcome:v1') === '1') return;
+            store.setItem('kuro:welcome:v1', '1');
+            popup({
+                icon: 'fa-bolt',
+                title: 'Welcome to Kuro',
+                body: 'In this proxy we have many things.\n\n' +
+                    'This file gets auto-updated via GitHub: when a new build ships you get an ' +
+                    '"Update available" popup right here, and pings sent out for Kuro arrive in this same spot.',
+                buttons: [{ label: 'OK', primary: true }]
+            });
+        }
+        /* wait for the intro tour to finish so the two do not stack on first run */
+        (function wait() {
+            if (store.getItem('kuro:tutorial:v1') === 'done') { show(); return; }
+            if (++tries > 40) { show(); return; }
+            setTimeout(wait, 1500);
+        })();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* pings                                                               */
+    /* ------------------------------------------------------------------ */
+    function parseCsv(text) {
+        var rows = [], row = [], cell = '', i = 0, q = false;
+        while (i < text.length) {
+            var c = text[i];
+            if (q) {
+                if (c === '"') {
+                    if (text[i + 1] === '"') { cell += '"'; i += 2; continue; }
+                    q = false; i++; continue;
+                }
+                cell += c; i++; continue;
+            }
+            if (c === '"') { q = true; i++; continue; }
+            if (c === ',') { row.push(cell); cell = ''; i++; continue; }
+            if (c === '\n' || c === '\r') {
+                if (c === '\r' && text[i + 1] === '\n') i++;
+                row.push(cell); rows.push(row); row = []; cell = ''; i++; continue;
+            }
+            cell += c; i++;
+        }
+        if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+        return rows.filter(function (r) {
+            return r.some(function (c2) { return String(c2).trim() !== ''; });
+        });
+    }
+
+    function fromCsv(text) {
+        var rows = parseCsv(String(text).replace(/^\uFEFF/, ''));
+        if (rows.length < 1) return null;
+        var head = rows[0].map(function (s) { return String(s).trim().toLowerCase(); });
+        var iId = head.indexOf('id');
+        var iTitle = head.indexOf('title');
+        var iMsg = head.indexOf('message');
+        if (iTitle < 0) iTitle = (head.length > 1 ? 1 : 0);
+        if (iMsg < 0) iMsg = head.length - 1;
+        var pick = null;
+        for (var r = rows.length - 1; r >= 1; r--) {
+            var msg = String(rows[r][iMsg] || '').trim();
+            if (msg) { pick = rows[r]; break; }
+        }
+        if (!pick) return null;
+        return {
+            id: iId >= 0 ? String(pick[iId] || '').trim() : '',
+            title: String(pick[iTitle] || '').trim(),
+            message: String(pick[iMsg] || '').trim()
+        };
+    }
+
+    function announce(item, channel) {
+        var sig = [item.id || '', item.title || '', item.message || ''].join('\u0001');
+        var key = 'kuro:ping:seen:' + channel;
+        var seen = store.getItem(key);
+        store.setItem(key, sig);
+        var last = document.getElementById('kuroLastPing');
+        if (last) last.textContent = (item.title ? item.title + ' - ' : '') + item.message;
+        if (seen === null || seen === undefined || seen === '') return false;
+        if (seen === sig) return false;
+        if (!item.message) return false;
+        popup({
+            icon: 'fa-tower-broadcast',
+            title: item.title || 'Kuro',
+            body: item.message,
+            buttons: [{ label: 'OK', primary: true }]
+        });
+        return true;
+    }
+
+    var pingBusy = false;
+    function pollPing() {
+        if (pingBusy) return Promise.resolve();
+        pingBusy = true;
+        var sources = [{ name: 'repo', url: REPO_RAW + 'ping.json', json: true }];
+        var feed = String(store.getItem('kuro:pingfeed:v1') || PING_FEED_DEFAULT || '').trim();
+        if (feed) sources.push({ name: 'sheet', url: feed, json: false });
+
+        var chain = Promise.resolve();
+        sources.forEach(function (s) {
+            chain = chain.then(function () {
+                return getText(s.url).then(function (txt) {
+                    var item = null;
+                    if (s.json) {
+                        var o = JSON.parse(txt);
+                        if (o && o.message) item = { id: o.id, title: o.title, message: String(o.message) };
+                    } else {
+                        item = fromCsv(txt);
+                    }
+                    if (item && item.message) announce(item, s.name);
+                }).catch(function () { });
+            });
+        });
+        return chain.then(done, done);
+        function done() { pingBusy = false; }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* auto-update                                                         */
+    /* ------------------------------------------------------------------ */
+    function setStatus(txt) {
+        var e = document.getElementById('kuroUpdStatus');
+        if (e) e.textContent = txt;
+    }
+
+    function promptUpdate(v) {
+        var build = String(v.build);
+        if (store.getItem('kuro:upd:later:' + build) === '1') return;
+        popup({
+            icon: 'fa-cloud-arrow-down',
+            title: 'Update available',
+            body: 'Build ' + build + (v.date ? ' (' + v.date + ')' : '') +
+                (v.title ? '\n' + v.title : '') +
+                (v.notes ? '\n\n' + v.notes : '') +
+                '\n\nPress "Update now" to load the new build of Kuro.',
+            buttons: [
+                {
+                    label: 'Later',
+                    onClick: function () { store.setItem('kuro:upd:later:' + build, '1'); }
+                },
+                {
+                    label: 'Update now',
+                    primary: true,
+                    onClick: function () {
+                        try { store.removeItem('kuro:upd:later:' + build); } catch (e) { }
+                        location.replace(location.pathname + '?klbuild=' + Date.now() + location.hash);
+                    }
+                }
+            ]
+        });
+    }
+
+    var updBusy = false;
+    function checkUpdate(manual) {
+        if (updBusy) return Promise.resolve();
+        updBusy = true;
+        var url = new URL('version.json', location.href).href;
+        return getJson(url).catch(function () {
+            return getJson(REPO_RAW + 'version.json');
+        }).then(function (v) {
+            if (!v || !v.build) throw new Error('empty feed');
+            if (String(v.build) !== KURO_BUILD) {
+                setStatus('Build ' + v.build + ' is available. "Update now" reloads Kuro with it.');
+                promptUpdate(v);
+            } else {
+                setStatus('Up to date - running build ' + KURO_BUILD + '.');
+            }
+        }).catch(function (e) {
+            if (manual) setStatus('Could not reach the update feed (' + (e && e.message ? e.message : 'error') + ').');
+        }).then(function () { updBusy = false; });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* changelog page                                                      */
+    /* ------------------------------------------------------------------ */
+    function renderChangelog() {
+        var box = document.getElementById('kuroChangelog');
+        if (!box) return;
+        var urls = [new URL('changelog.json', location.href).href, REPO_RAW + 'changelog.json'];
+        var i = 0;
+
+        function draw(list) {
+            box.innerHTML = '';
+            list.forEach(function (e) {
+                var d = document.createElement('div');
+                var head = document.createElement('div');
+                head.className = 'kl-ehead';
+                var b = document.createElement('span');
+                b.className = 'kl-badge';
+                b.textContent = 'v' + (e.build || '?');
+                head.appendChild(b);
+                if (String(e.build) === KURO_BUILD) {
+                    var now = document.createElement('span');
+                    now.className = 'kl-now';
+                    now.textContent = '(current)';
+                    head.appendChild(now);
+                }
+                if (e.date) {
+                    var dt = document.createElement('span');
+                    dt.className = 'kl-date';
+                    dt.textContent = e.date;
+                    head.appendChild(dt);
+                }
+                if (e.title) {
+                    var t = document.createElement('span');
+                    t.className = 'kl-etitle';
+                    t.textContent = e.title;
+                    head.appendChild(t);
+                }
+                d.appendChild(head);
+                if (e.notes && e.notes.length) {
+                    var ul = document.createElement('ul');
+                    ul.className = 'kl-notes';
+                    e.notes.forEach(function (n) {
+                        var li = document.createElement('li');
+                        li.textContent = n;
+                        ul.appendChild(li);
+                    });
+                    d.appendChild(ul);
+                }
+                box.appendChild(d);
+            });
+            var note = document.createElement('div');
+            note.className = 'kl-muted';
+            note.textContent = 'You are running build ' + KURO_BUILD + '.';
+            box.appendChild(note);
+        }
+
+        function next(list) {
+            if (Array.isArray(list) && list.length) { draw(list); return; }
+            if (i < urls.length) {
+                var u = urls[i++];
+                getJson(u).then(function (r) { next(r); }, function () { next(null); });
+                return;
+            }
+        }
+        draw(EMBEDDED_CHANGELOG);
+        next(null);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* settings wiring                                                     */
+    /* ------------------------------------------------------------------ */
+    function wireSettings() {
+        var badge = document.getElementById('kuroBuildBadge');
+        if (badge) badge.textContent = KURO_BUILD;
+
+        var feed = document.getElementById('kuroPingFeed');
+        if (feed) {
+            feed.value = String(store.getItem('kuro:pingfeed:v1') || PING_FEED_DEFAULT || '');
+            var st0 = document.getElementById('kuroPingStatus');
+            if (st0 && !st0.textContent) {
+                st0.textContent = feed.value.trim()
+                    ? 'Polling every ' + (PING_MS / 1000) + ' seconds.'
+                    : 'No feed set yet - paste a published CSV link to receive pings.';
+            }
+        }
+
+        var save = document.getElementById('kuroPingSave');
+        if (save && feed) {
+            save.addEventListener('click', function () {
+                var v = feed.value.trim();
+                if (v) store.setItem('kuro:pingfeed:v1', v);
+                else store.removeItem('kuro:pingfeed:v1');
+                var s = document.getElementById('kuroPingStatus');
+                if (s) s.textContent = v ? 'Saved - polling every ' + (PING_MS / 1000) + ' seconds.' : 'Cleared.';
+                pollPing();
+            });
+        }
+
+        var chk = document.getElementById('kuroCheckUpd');
+        if (chk) {
+            chk.addEventListener('click', function () {
+                setStatus('Checking for updates...');
+                checkUpdate(true);
+            });
+        }
+
+        renderChangelog();
+    }
+
+    function boot() {
+        wireSettings();
+        setTimeout(welcome, 900);
+        setTimeout(function () { pollPing(); }, 4000);
+        setTimeout(function () { checkUpdate(false); }, 9000);
+
+        setInterval(function () { if (!document.hidden) pollPing(); }, PING_MS);
+        setInterval(function () { if (!document.hidden) checkUpdate(false); }, UPDATE_MS);
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) { pollPing(); checkUpdate(false); }
+        });
+        window.addEventListener('online', function () { pollPing(); });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+})();
+</script>
 
 </body>
 
