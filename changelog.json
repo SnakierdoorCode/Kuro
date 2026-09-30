@@ -1,0 +1,25 @@
+[
+  {
+    "build": "2026-09-30.1",
+    "date": "2026-09-30",
+    "title": "Live layer",
+    "notes": [
+      "Welcome popup in the bottom-right corner (shown once per browser)",
+      "Broadcast pings - a custom message pops up for everyone viewing this page",
+      "Auto-update prompt with an Update now button when a new build ships",
+      "New Settings > Changelog page with the full history",
+      "Kuro rebrand with the purple theme"
+    ]
+  },
+  {
+    "build": "2026-09-30.0",
+    "date": "2026-09-30",
+    "title": "Kuro rebrand",
+    "notes": [
+      "GUST rebranded to Kuro",
+      "Blue theme replaced with the purple theme",
+      "Animated KURO title on the new tab",
+      "New tab layout, radii and typography (Outfit)"
+    ]
+  }
+]
