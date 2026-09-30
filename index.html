@@ -3653,8 +3653,12 @@
             animation: _kuro-pop .45s ease forwards;
         }
 
-        /* Changelog - scroll: spin */
-        .settings-nav-item[data-section="changelog"]:hover i {
+/* Broadcasts - tower: pulse */
+.settings-nav-item[data-section="broadcasts"]:hover i {
+    animation: _kuro-ping .4s ease forwards;
+}
+/* Changelog - scroll: spin */
+.settings-nav-item[data-section="changelog"]:hover i {
             animation: _kuro-spin .55s cubic-bezier(.34,1.56,.64,1) forwards;
         }
         /* Fallback — rotate-left: elastic rewind (retry/rollback feel) */
@@ -6479,6 +6483,8 @@
                                         class="fas fa-map"></i><span>Tutorial</span></button>
                                 <button class="settings-nav-item" data-section="credits"><i
                                         class="fas fa-address-card"></i><span>Credits</span></button>
+                                <button class="settings-nav-item" data-section="broadcasts"><i
+                                        class="fas fa-tower-broadcast"></i><span>Broadcasts</span></button>
                                 <button class="settings-nav-item" data-section="changelog"><i
                                         class="fas fa-scroll"></i><span>Changelog</span></button>
                                 <button class="settings-nav-item" data-section="about"><i
@@ -7612,23 +7618,6 @@
                                                     class="fas fa-rotate"></i></button>
                                         </div>
                                         <div class="settings-switch-row">
-                                            <div style="flex:1;min-width:0;">
-                                                <div class="settings-switch-label">Ping feed (Google Sheet CSV)</div>
-                                                <div class="settings-hint">In Google Sheets: File &rarr; Share &rarr; Publish to web
-                                                    &rarr; CSV, then paste the link here. Every open copy of Kuro polls it and
-                                                    shows the message as a bottom-right popup. Sheet columns:
-                                                    <b>id</b>, <b>title</b>, <b>message</b> &mdash; edit a cell to broadcast.</div>
-                                                <div class="kl-row" style="margin-top:8px;">
-                                                    <input type="text" class="settings-input" id="kuroPingFeed"
-                                                        placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"
-                                                        style="flex:1;min-width:200px;">
-                                                    <button class="settings-btn-icon" id="kuroPingSave" title="Save"><i
-                                                            class="fas fa-check"></i></button>
-                                                </div>
-                                                <div class="settings-hint" id="kuroPingStatus" style="margin-top:6px;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="settings-switch-row">
                                             <div>
                                                 <div class="settings-switch-label">Last broadcast received</div>
                                                 <div class="settings-hint" id="kuroLastPing">Nothing yet.</div>
@@ -7638,7 +7627,25 @@
                                 </div>
                             </div>
 
-<div class="settings-section" data-section="about" style="display:none;">
+                                <div class="settings-section" data-section="broadcasts" style="display:none;">
+                                    <div class="settings-card">
+                                        <div class="settings-card-head"><i class="fas fa-tower-broadcast"></i> Broadcasts
+                                            <button class="settings-btn-icon" id="kuroBcRefresh" title="Refresh" style="margin-left:auto;"><i
+                                                    class="fas fa-rotate"></i></button>
+                                        </div>
+                                        <div class="settings-card-body">
+                                            <div class="settings-switch-row">
+                                                <div>
+                                                    <div class="settings-switch-label">Archive source</div>
+                                                    <div class="settings-hint" id="kuroBcStatus">Loading broadcasts...</div>
+                                                </div>
+                                            </div>
+                                            <div id="kuroBroadcasts" class="kl-entries">Loading broadcasts...</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-section" data-section="about" style="display:none;">
                                 <div class="settings-card">
                                     <div class="settings-card-head"><i class="fas fa-info-circle"></i> About Kuro
                                     </div>
@@ -28997,6 +29004,28 @@ _VIEWER_DL_JS +
     gap: 8px;
     flex-wrap: wrap;
 }
+
+#kuroBroadcasts {
+    margin-top: 4px;
+}
+
+#kuroBroadcasts > div:not(.kl-muted) {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--bd, rgba(255, 255, 255, .08));
+}
+
+#kuroBroadcasts > div:not(.kl-muted):last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.kl-bc-msg {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--tx2, #a9a3bd);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
 </style>
 
 <script>
@@ -29004,11 +29033,9 @@ _VIEWER_DL_JS +
     'use strict';
 
     /* Build id embedded in THIS file - must match version.json when you ship. */
-    var KURO_BUILD = '2026-09-30.1';
+    var KURO_BUILD = '2026-09-30.2';
     /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
     var REPO_RAW = 'https://cdn.jsdelivr.net/gh/snakierdoorcode/Kuro@main/';
-    /* Optional default Google Sheet CSV URL - can also be pasted in Settings > Changelog. */
-    var PING_FEED_DEFAULT = '';
     var PING_MS = 30000;
     var UPDATE_MS = 60000;
 
@@ -29019,6 +29046,17 @@ _VIEWER_DL_JS +
     };
 
     var EMBEDDED_CHANGELOG = [
+        {
+            build: '2026-09-30.2',
+            date: '2026-09-30',
+            title: 'Broadcasts',
+            notes: [
+                'New Settings > Broadcasts tab with the archive of past broadcasts',
+                'Archive is read from broadcasts.json (repo), with this browser\'s own history as fallback',
+                'Google Sheet ping feed removed from Settings > Changelog - pings come from ping.json only',
+                'Update prompt no longer repeats itself for a build you already updated to'
+            ]
+        },
         {
             build: '2026-09-30.1',
             date: '2026-09-30',
@@ -29182,53 +29220,6 @@ _VIEWER_DL_JS +
     /* ------------------------------------------------------------------ */
     /* pings                                                               */
     /* ------------------------------------------------------------------ */
-    function parseCsv(text) {
-        var rows = [], row = [], cell = '', i = 0, q = false;
-        while (i < text.length) {
-            var c = text[i];
-            if (q) {
-                if (c === '"') {
-                    if (text[i + 1] === '"') { cell += '"'; i += 2; continue; }
-                    q = false; i++; continue;
-                }
-                cell += c; i++; continue;
-            }
-            if (c === '"') { q = true; i++; continue; }
-            if (c === ',') { row.push(cell); cell = ''; i++; continue; }
-            if (c === '\n' || c === '\r') {
-                if (c === '\r' && text[i + 1] === '\n') i++;
-                row.push(cell); rows.push(row); row = []; cell = ''; i++; continue;
-            }
-            cell += c; i++;
-        }
-        if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
-        return rows.filter(function (r) {
-            return r.some(function (c2) { return String(c2).trim() !== ''; });
-        });
-    }
-
-    function fromCsv(text) {
-        var rows = parseCsv(String(text).replace(/^\uFEFF/, ''));
-        if (rows.length < 1) return null;
-        var head = rows[0].map(function (s) { return String(s).trim().toLowerCase(); });
-        var iId = head.indexOf('id');
-        var iTitle = head.indexOf('title');
-        var iMsg = head.indexOf('message');
-        if (iTitle < 0) iTitle = (head.length > 1 ? 1 : 0);
-        if (iMsg < 0) iMsg = head.length - 1;
-        var pick = null;
-        for (var r = rows.length - 1; r >= 1; r--) {
-            var msg = String(rows[r][iMsg] || '').trim();
-            if (msg) { pick = rows[r]; break; }
-        }
-        if (!pick) return null;
-        return {
-            id: iId >= 0 ? String(pick[iId] || '').trim() : '',
-            title: String(pick[iTitle] || '').trim(),
-            message: String(pick[iMsg] || '').trim()
-        };
-    }
-
     function announce(item, channel) {
         var sig = [item.id || '', item.title || '', item.message || ''].join('\u0001');
         var key = 'kuro:ping:seen:' + channel;
@@ -29236,6 +29227,7 @@ _VIEWER_DL_JS +
         store.setItem(key, sig);
         var last = document.getElementById('kuroLastPing');
         if (last) last.textContent = (item.title ? item.title + ' - ' : '') + item.message;
+        if (item.message) pushHistory(item);
         if (seen === null || seen === undefined || seen === '') return false;
         if (seen === sig) return false;
         if (!item.message) return false;
@@ -29252,26 +29244,14 @@ _VIEWER_DL_JS +
     function pollPing() {
         if (pingBusy) return Promise.resolve();
         pingBusy = true;
-        var sources = [{ name: 'repo', url: REPO_RAW + 'ping.json', json: true }];
-        var feed = String(store.getItem('kuro:pingfeed:v1') || PING_FEED_DEFAULT || '').trim();
-        if (feed) sources.push({ name: 'sheet', url: feed, json: false });
-
-        var chain = Promise.resolve();
-        sources.forEach(function (s) {
-            chain = chain.then(function () {
-                return getText(s.url).then(function (txt) {
-                    var item = null;
-                    if (s.json) {
-                        var o = JSON.parse(txt);
-                        if (o && o.message) item = { id: o.id, title: o.title, message: String(o.message) };
-                    } else {
-                        item = fromCsv(txt);
-                    }
-                    if (item && item.message) announce(item, s.name);
-                }).catch(function () { });
-            });
-        });
-        return chain.then(done, done);
+        var url = REPO_RAW + 'ping.json';
+        return getText(url).then(function (txt) {
+            var o = JSON.parse(txt);
+            var item = (o && o.message)
+                ? { id: o.id, title: o.title, message: String(o.message) }
+                : null;
+            if (item && item.message) announce(item, 'repo');
+        }).catch(function () { }).then(done, done);
         function done() { pingBusy = false; }
     }
 
@@ -29283,9 +29263,29 @@ _VIEWER_DL_JS +
         if (e) e.textContent = txt;
     }
 
+    function isNewerBuild(a, b) {
+        var pa = /^(\d{4}-\d{2}-\d{2})\.(\d+)$/.exec(String(a));
+        var pb = /^(\d{4}-\d{2}-\d{2})\.(\d+)$/.exec(String(b));
+        if (pa && pb) {
+            if (pa[1] !== pb[1]) return pa[1] > pb[1];
+            return parseInt(pa[2], 10) > parseInt(pb[2], 10);
+        }
+        return String(a) !== String(b);
+    }
+
+    var PROMPT_GAP_MS = 3 * 60 * 60 * 1000;
     function promptUpdate(v) {
         var build = String(v.build);
         if (store.getItem('kuro:upd:later:' + build) === '1') return;
+        /* "Update now" was already pressed for this build - never re-popup,
+           the status line in Settings > Changelog carries the message instead. */
+        if (store.getItem('kuro:upd:applied:' + build) === '1') {
+            setStatus('Build ' + build + ' requested - reload Kuro (Ctrl+R) if it still shows ' + KURO_BUILD + '.');
+            return;
+        }
+        var seen = parseInt(store.getItem('kuro:upd:seen:' + build) || '0', 10);
+        if (seen && (Date.now() - seen) < PROMPT_GAP_MS) return;
+        store.setItem('kuro:upd:seen:' + build, String(Date.now()));
         popup({
             icon: 'fa-cloud-arrow-down',
             title: 'Update available',
@@ -29302,6 +29302,7 @@ _VIEWER_DL_JS +
                     label: 'Update now',
                     primary: true,
                     onClick: function () {
+                        try { store.setItem('kuro:upd:applied:' + build, '1'); } catch (e) { }
                         try { store.removeItem('kuro:upd:later:' + build); } catch (e) { }
                         location.replace(location.pathname + '?klbuild=' + Date.now() + location.hash);
                     }
@@ -29319,11 +29320,17 @@ _VIEWER_DL_JS +
             return getJson(REPO_RAW + 'version.json');
         }).then(function (v) {
             if (!v || !v.build) throw new Error('empty feed');
-            if (String(v.build) !== KURO_BUILD) {
-                setStatus('Build ' + v.build + ' is available. "Update now" reloads Kuro with it.');
+            var feed = String(v.build);
+            if (feed === KURO_BUILD) {
+                ['later', 'seen', 'applied'].forEach(function (k) {
+                    try { store.removeItem('kuro:upd:' + k + ':' + feed); } catch (e) { }
+                });
+                setStatus('Up to date - running build ' + KURO_BUILD + '.');
+            } else if (isNewerBuild(feed, KURO_BUILD)) {
+                setStatus('Build ' + feed + ' is available. "Update now" reloads Kuro with it.');
                 promptUpdate(v);
             } else {
-                setStatus('Up to date - running build ' + KURO_BUILD + '.');
+                setStatus('Update feed reports ' + feed + ' - running build ' + KURO_BUILD + ', nothing to update.');
             }
         }).catch(function (e) {
             if (manual) setStatus('Could not reach the update feed (' + (e && e.message ? e.message : 'error') + ').');
@@ -29399,34 +29406,136 @@ _VIEWER_DL_JS +
     }
 
     /* ------------------------------------------------------------------ */
+    /* broadcasts archive                                                  */
+    /* ------------------------------------------------------------------ */
+    function localHistory() {
+        var list = null;
+        try { list = JSON.parse(store.getItem('kuro:ping:history:v1') || '[]'); } catch (e) { list = null; }
+        return Array.isArray(list) ? list : [];
+    }
+
+    function bcKey(e) {
+        return [String(e && e.id || ''), String(e && e.message || '')].join('\u0001');
+    }
+
+    function pushHistory(item) {
+        var list = localHistory(), k = bcKey(item), i;
+        for (i = 0; i < list.length; i++) { if (bcKey(list[i]) === k) return; }
+        list.unshift({ id: item.id || '', title: item.title || '', message: item.message, at: Date.now() });
+        if (list.length > 50) list.length = 50;
+        store.setItem('kuro:ping:history:v1', JSON.stringify(list));
+    }
+
+    function whenOf(e) {
+        var t = e && (e.date || e.at);
+        if (!t) return NaN;
+        return typeof t === 'number' ? t : Date.parse(t);
+    }
+
+    function renderBroadcasts() {
+        var box = document.getElementById('kuroBroadcasts');
+        var stat = document.getElementById('kuroBcStatus');
+        if (!box) return;
+        var urls = [new URL('broadcasts.json', location.href).href, REPO_RAW + 'broadcasts.json'];
+        var i = 0;
+
+        function draw(list, note, status) {
+            list = list.slice().sort(function (a, b) {
+                var da = whenOf(a), db = whenOf(b);
+                if (isNaN(da) && isNaN(db)) return 0;
+                if (isNaN(da)) return 1;
+                if (isNaN(db)) return -1;
+                return db - da;
+            });
+            box.innerHTML = '';
+            if (!list.length) {
+                var empty = document.createElement('div');
+                empty.className = 'kl-muted';
+                empty.textContent = 'No broadcasts yet - when a ping is sent to Kuro it lands here.';
+                box.appendChild(empty);
+            }
+            list.forEach(function (e) {
+                var msg = String(e && e.message || '').trim();
+                if (!msg) return;
+                var d = document.createElement('div');
+                var head = document.createElement('div');
+                head.className = 'kl-ehead';
+
+                var b = document.createElement('span');
+                b.className = 'kl-badge';
+                b.textContent = e.id ? '#' + e.id : 'ping';
+                head.appendChild(b);
+
+                var ms = whenOf(e);
+                if (!isNaN(ms)) {
+                    var dt = document.createElement('span');
+                    dt.className = 'kl-date';
+                    dt.textContent = new Date(ms).toLocaleString();
+                    head.appendChild(dt);
+                }
+                if (e.title) {
+                    var t = document.createElement('span');
+                    t.className = 'kl-etitle';
+                    t.textContent = String(e.title);
+                    head.appendChild(t);
+                }
+                d.appendChild(head);
+
+                var p = document.createElement('div');
+                p.className = 'kl-bc-msg';
+                p.textContent = msg;
+                d.appendChild(p);
+                box.appendChild(d);
+            });
+            if (note) {
+                var n = document.createElement('div');
+                n.className = 'kl-muted';
+                n.textContent = note;
+                box.appendChild(n);
+            }
+            if (stat) stat.textContent = status || '';
+        }
+
+        function merge(archive, note, status) {
+            var seen = {}, out = [];
+            (archive || []).forEach(function (e) {
+                if (!e || !String(e.message || '').trim()) return;
+                seen[bcKey(e)] = 1;
+                out.push(e);
+            });
+            localHistory().forEach(function (e) {
+                if (!e || !String(e.message || '').trim()) return;
+                if (seen[bcKey(e)]) return;
+                out.push(e);
+            });
+            draw(out, note, status);
+        }
+
+        function next(list) {
+            if (Array.isArray(list)) {
+                merge(list, 'Archive: Kuro repository (broadcasts.json).',
+                    'Broadcasts sent to Kuro, newest first.');
+                return;
+            }
+            if (i < urls.length) {
+                var u = urls[i++];
+                getJson(u).then(function (r) { next(r); }, function () { next(null); });
+                return;
+            }
+            merge(null, 'Archive unreachable - showing broadcasts received by this browser.',
+                'Could not reach broadcasts.json, using local history.');
+        }
+
+        draw(localHistory(), 'Loading broadcasts...', 'Loading broadcasts...');
+        next(null);
+    }
+
+    /* ------------------------------------------------------------------ */
     /* settings wiring                                                     */
     /* ------------------------------------------------------------------ */
     function wireSettings() {
         var badge = document.getElementById('kuroBuildBadge');
         if (badge) badge.textContent = KURO_BUILD;
-
-        var feed = document.getElementById('kuroPingFeed');
-        if (feed) {
-            feed.value = String(store.getItem('kuro:pingfeed:v1') || PING_FEED_DEFAULT || '');
-            var st0 = document.getElementById('kuroPingStatus');
-            if (st0 && !st0.textContent) {
-                st0.textContent = feed.value.trim()
-                    ? 'Polling every ' + (PING_MS / 1000) + ' seconds.'
-                    : 'No feed set yet - paste a published CSV link to receive pings.';
-            }
-        }
-
-        var save = document.getElementById('kuroPingSave');
-        if (save && feed) {
-            save.addEventListener('click', function () {
-                var v = feed.value.trim();
-                if (v) store.setItem('kuro:pingfeed:v1', v);
-                else store.removeItem('kuro:pingfeed:v1');
-                var s = document.getElementById('kuroPingStatus');
-                if (s) s.textContent = v ? 'Saved - polling every ' + (PING_MS / 1000) + ' seconds.' : 'Cleared.';
-                pollPing();
-            });
-        }
 
         var chk = document.getElementById('kuroCheckUpd');
         if (chk) {
@@ -29437,6 +29546,12 @@ _VIEWER_DL_JS +
         }
 
         renderChangelog();
+
+        renderBroadcasts();
+        var bcNav = document.querySelector('.settings-nav-item[data-section="broadcasts"]');
+        if (bcNav) bcNav.addEventListener('click', function () { renderBroadcasts(); });
+        var bcRefresh = document.getElementById('kuroBcRefresh');
+        if (bcRefresh) bcRefresh.addEventListener('click', function () { renderBroadcasts(); });
     }
 
     function boot() {
