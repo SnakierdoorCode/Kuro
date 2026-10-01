@@ -1,10 +1,5 @@
 {
-  "id": "1",
-  "title": "Test",
-  "message": "This is a Test to test the pinging/broadcast feature"
-},
-{
   "id": "2",
-  "title": "Test2",
-  "message": "This is a Test to test the pinging/broadcast feature AGAIN to test timing and latency delay"
-}
+  "title": "CAN YOU SEE THIS MESSAGE?",
+  "message": "can you really see this message?"
+},
