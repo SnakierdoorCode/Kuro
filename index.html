@@ -2,6 +2,9 @@
 <html lang="en">
 
 <head>
+    <!-- One base for everything Kuro reads from the repo: ping, broadcasts,
+         changelog and version.json all resolve against the URL below. -->
+    <base href="https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/">
     <!-- Vendored acorn 8.14.0 + acorn-walk 8.3.4 (MIT), minified. Powers the
          AST-based location rewriter in the page renderer (see rewriteLocationRefs).
          Exposes window.acorn and window.acorn.walk. -->
@@ -7516,7 +7519,7 @@
                                                                 Author &amp; maintainer of Kuro
                                                             </div>
                                                             <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding-left:2px;">
-                                                                <a href="https://github.com/snakierdoorcode/Kuro/tree/main" target="_blank" rel="noopener" style="color:var(--ac);font-size:12px;text-decoration:none;background:rgba(201,162,255,0.08);border:1px solid rgba(201,162,255,0.2);border-radius:5px;padding:2px 8px;display:inline-flex;align-items:center;gap:5px;">Kuro repo <i class="fas fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.7;"></i></a>
+                                                                <a href="https://github.com/SnakierdoorCode/Kuro/tree/main" target="_blank" rel="noopener" style="color:var(--ac);font-size:12px;text-decoration:none;background:rgba(201,162,255,0.08);border:1px solid rgba(201,162,255,0.2);border-radius:5px;padding:2px 8px;display:inline-flex;align-items:center;gap:5px;">Kuro repo <i class="fas fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.7;"></i></a>
                                                             </div>
                                                         </div>
                                                         <div style="padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid var(--bd);">
@@ -7665,14 +7668,14 @@
                                                 </div>
                                                 <div style="display:flex;align-items:flex-start;gap:10px;">
                                                     <span style="color:var(--tx);font-weight:600;min-width:96px;">Repository</span>
-                                                    <a href="https://github.com/snakierdoorcode/Kuro/tree/main" target="_blank" rel="noopener" style="color:var(--ac);text-decoration:none;font-family:var(--mono);font-size:12px;word-break:break-all;">github.com/snakierdoorcode/Kuro</a>
+                                                    <a href="https://github.com/SnakierdoorCode/Kuro/tree/main" target="_blank" rel="noopener" style="color:var(--ac);text-decoration:none;font-family:var(--mono);font-size:12px;word-break:break-all;">github.com/snakierdoorcode/Kuro</a>
                                                 </div>
                                                 <div style="display:flex;align-items:flex-start;gap:10px;">
                                                     <span style="color:var(--tx);font-weight:600;min-width:96px;">Based on</span>
                                                     <span>GUST by Nautilus Labs</span>
                                                 </div>
                                             </div>
-                                            <a href="https://github.com/snakierdoorcode/Kuro/tree/main" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 16px;background:var(--ac);color:#000;font-weight:600;font-size:13px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;">
+                                            <a href="https://github.com/SnakierdoorCode/Kuro/tree/main" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 16px;background:var(--ac);color:#000;font-weight:600;font-size:13px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;">
                                                 <i class="fab fa-github"></i> View source on GitHub
                                             </a>
                                         </div>
@@ -21523,7 +21526,7 @@ _VIEWER_DL_JS +
                 if (e.key === "Enter") ntSearchBtn.click();
             };
             const ntGithubBtn = $("ntGithubBtn");
-            if (ntGithubBtn) ntGithubBtn.onclick = () => window.open("https://github.com/snakierdoorcode/Kuro/tree/main", "_blank", "noopener,noreferrer");
+            if (ntGithubBtn) ntGithubBtn.onclick = () => window.open("https://github.com/SnakierdoorCode/Kuro/tree/main", "_blank", "noopener,noreferrer");
 
             ntWallpaperBtn.onclick = () => {
                 $("wallpaperUrlInput").value = "";
@@ -24732,8 +24735,8 @@ _VIEWER_DL_JS +
                     SEP,
                     mi('mi:help', 'Help', null, { sub: [
                         mi('mi:help', 'About Google Chrome', () => go('kuro://settings/about')),
-                        mi('mi:open-in-new', "What's new", () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main')),
-                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main'))
+                        mi('mi:open-in-new', "What's new", () => createTab('https://github.com/SnakierdoorCode/Kuro/tree/main')),
+                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/SnakierdoorCode/Kuro/tree/main'))
                     ] }),
                     mi('mi:settings', 'Settings', () => go('kuro://settings')),
                     mi('mi:logout', 'Exit', () => { try { window.close(); } catch (_) {} })
@@ -27121,7 +27124,7 @@ _VIEWER_DL_JS +
                     SEP,
                     mi('mi:help', 'Help', null, { sub: [
                         mi('mi:help', 'About Brave', () => go('kuro://settings/about')),
-                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main'))
+                        mi('mi:open-in-new', 'Report an issue', () => createTab('https://github.com/SnakierdoorCode/Kuro/tree/main'))
                     ] }),
                     mi('mi:settings', 'Settings', () => go('kuro://settings')),
                     mi('mi:logout', 'Exit', () => { try { window.close(); } catch (_) {} })
@@ -27158,7 +27161,7 @@ _VIEWER_DL_JS +
                     ] }),
                     mi('', 'Help', null, { sub: [
                         mi('', 'About Firefox', () => go('kuro://settings/about')),
-                        mi('', 'Report broken site...', () => createTab('https://github.com/snakierdoorcode/Kuro/tree/main'))
+                        mi('', 'Report broken site...', () => createTab('https://github.com/SnakierdoorCode/Kuro/tree/main'))
                     ] }),
                     SEP,
                     mi('', 'Quit', () => { try { window.close(); } catch (_) {} }, { accel: 'Ctrl+Shift+Q' })
@@ -29035,7 +29038,7 @@ _VIEWER_DL_JS +
     /* Build id embedded in THIS file - must match version.json when you ship. */
     var KURO_BUILD = '2026-09-30.2';
     /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
-    var REPO_RAW = 'https://cdn.jsdelivr.net/gh/snakierdoorcode/Kuro@main/';
+    var REPO_RAW = 'https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/';
     var PING_MS = 30000;
     var UPDATE_MS = 60000;
 
@@ -29054,7 +29057,8 @@ _VIEWER_DL_JS +
                 'New Settings > Broadcasts tab with the archive of past broadcasts',
                 'Archive is read from broadcasts.json (repo), with this browser\'s own history as fallback',
                 'Google Sheet ping feed removed from Settings > Changelog - pings come from ping.json only',
-                'Update prompt no longer repeats itself for a build you already updated to'
+                'Update prompt no longer repeats itself for a build you already updated to',
+                'pings, broadcasts, changelog and version.json all resolve from the <base href> repo'
             ]
         },
         {
@@ -29070,6 +29074,22 @@ _VIEWER_DL_JS +
             ]
         }
     ];
+
+    /* ------------------------------------------------------------------ */
+    /* Feed URLs - <base href> in <head> is the single place that says      */
+    /* where the repo lives, so ping, broadcasts, changelog and version     */
+    /* all come from it; a copy next to index.html is the fallback.         */
+    /* ------------------------------------------------------------------ */
+    function repoUrl(name) {
+        var base = '';
+        try { base = document.baseURI || ''; } catch (e) { base = ''; }
+        if (!/^https?:/i.test(base)) base = REPO_RAW;
+        try { return new URL(name, base).href; } catch (e) { return REPO_RAW + name; }
+    }
+
+    function localUrl(name) {
+        try { return new URL(name, location.href).href; } catch (e) { return name; }
+    }
 
     /* ------------------------------------------------------------------ */
     /* fetching: the libcurl/WISP pipeline first (works framed or not),    */
@@ -29244,8 +29264,8 @@ _VIEWER_DL_JS +
     function pollPing() {
         if (pingBusy) return Promise.resolve();
         pingBusy = true;
-        var url = REPO_RAW + 'ping.json';
-        return getText(url).then(function (txt) {
+        var url = repoUrl('ping.json');
+        return getText(url).catch(function () { return getText(localUrl('ping.json')); }).then(function (txt) {
             var o = JSON.parse(txt);
             var item = (o && o.message)
                 ? { id: o.id, title: o.title, message: String(o.message) }
@@ -29304,7 +29324,7 @@ _VIEWER_DL_JS +
                     onClick: function () {
                         try { store.setItem('kuro:upd:applied:' + build, '1'); } catch (e) { }
                         try { store.removeItem('kuro:upd:later:' + build); } catch (e) { }
-                        location.replace(location.pathname + '?klbuild=' + Date.now() + location.hash);
+                        location.replace(new URL(location.pathname + '?klbuild=' + Date.now() + location.hash, location.href).href);
                     }
                 }
             ]
@@ -29315,9 +29335,8 @@ _VIEWER_DL_JS +
     function checkUpdate(manual) {
         if (updBusy) return Promise.resolve();
         updBusy = true;
-        var url = new URL('version.json', location.href).href;
-        return getJson(url).catch(function () {
-            return getJson(REPO_RAW + 'version.json');
+        return getJson(repoUrl('version.json')).catch(function () {
+            return getJson(localUrl('version.json'));
         }).then(function (v) {
             if (!v || !v.build) throw new Error('empty feed');
             var feed = String(v.build);
@@ -29343,7 +29362,7 @@ _VIEWER_DL_JS +
     function renderChangelog() {
         var box = document.getElementById('kuroChangelog');
         if (!box) return;
-        var urls = [new URL('changelog.json', location.href).href, REPO_RAW + 'changelog.json'];
+        var urls = [repoUrl('changelog.json'), localUrl('changelog.json')];
         var i = 0;
 
         function draw(list) {
@@ -29436,7 +29455,7 @@ _VIEWER_DL_JS +
         var box = document.getElementById('kuroBroadcasts');
         var stat = document.getElementById('kuroBcStatus');
         if (!box) return;
-        var urls = [new URL('broadcasts.json', location.href).href, REPO_RAW + 'broadcasts.json'];
+        var urls = [repoUrl('broadcasts.json'), localUrl('broadcasts.json')];
         var i = 0;
 
         function draw(list, note, status) {
