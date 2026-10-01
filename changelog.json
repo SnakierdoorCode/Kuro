@@ -1,5 +1,15 @@
 [
   {
+    "build": "2026-09-30.4",
+    "date": "2026-09-30",
+    "title": "Fresh feeds",
+    "notes": [
+      "ping.json and broadcasts.json are read from raw.githubusercontent.com first - it is fresh the second a commit lands",
+      "raw.githack and jsDelivr are now second and third choice because both cache a pushed file for a few minutes",
+      "ping.json gets a cache-busting query so every poll really is a fresh read"
+    ]
+  },
+  {
     "build": "2026-09-30.3",
     "date": "2026-09-30",
     "title": "Instant pings",

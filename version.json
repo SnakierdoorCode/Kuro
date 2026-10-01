@@ -1,6 +1,6 @@
 {
-  "build": "2026-09-30.3",
+  "build": "2026-09-30.4",
   "date": "2026-09-30",
-  "title": "Instant pings",
-  "notes": "ping.json and broadcasts.json come from raw.githack - a GitHub push reaches every open Kuro within 30 seconds."
+  "title": "Fresh feeds",
+  "notes": "ping.json and broadcasts.json come from raw.githubusercontent.com first - a GitHub push reaches every open Kuro right away."
 }

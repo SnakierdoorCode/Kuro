@@ -3,8 +3,9 @@
 
 <head>
     <!-- One base for everything Kuro reads from the repo: changelog and
-         version.json resolve against the URL below, and it is the second
-         choice for ping.json/broadcasts.json after raw.githack. -->
+         version.json resolve against the URL below, and it is third choice
+         for ping.json/broadcasts.json after raw.githubusercontent.com and
+         raw.githack. -->
     <base href="https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/">
     <!-- Vendored acorn 8.14.0 + acorn-walk 8.3.4 (MIT), minified. Powers the
          AST-based location rewriter in the page renderer (see rewriteLocationRefs).
@@ -29037,11 +29038,13 @@ _VIEWER_DL_JS +
     'use strict';
 
     /* Build id embedded in THIS file - must match version.json when you ship. */
-    var KURO_BUILD = '2026-09-30.3';
+    var KURO_BUILD = '2026-09-30.4';
     /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
     var REPO_RAW = 'https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/';
-    /* Live feeds (ping + broadcasts) read raw.githack first: it reflects a
-       push in seconds, while jsDelivr can serve a stale copy for minutes. */
+    /* Live feeds (ping + broadcasts) read GitHub's own raw host first: it is
+       fresh the moment a commit lands. raw.githack and jsDelivr cache for a
+       while, so they are only fallbacks now. */
+    var GH_RAW = 'https://raw.githubusercontent.com/SnakierdoorCode/Kuro/main/';
     var GITHACK_RAW = 'https://raw.githack.com/SnakierdoorCode/Kuro/main/';
     var PING_MS = 30000;
     var UPDATE_MS = 60000;
@@ -29053,6 +29056,16 @@ _VIEWER_DL_JS +
     };
 
     var EMBEDDED_CHANGELOG = [
+        {
+            build: '2026-09-30.4',
+            date: '2026-09-30',
+            title: 'Fresh feeds',
+            notes: [
+                'ping.json and broadcasts.json are read from raw.githubusercontent.com first - it is fresh the second a commit lands',
+                'raw.githack and jsDelivr are now second and third choice because both cache a pushed file for a few minutes',
+                'ping.json gets a cache-busting query so every poll really is a fresh read'
+            ]
+        },
         {
             build: '2026-09-30.3',
             date: '2026-09-30',
@@ -29090,9 +29103,10 @@ _VIEWER_DL_JS +
     ];
 
     /* ------------------------------------------------------------------ */
-    /* Feed URLs - ping and broadcasts try raw.githack first (instant after  */
-    /* a push), then <base href> in <head> (jsDelivr), then the copy next   */
-    /* to index.html. Changelog and version.json still come from <base>.    */
+    /* Feed URLs - ping and broadcasts try GitHub's raw host first (fresh on    */
+    /* the second a commit lands), then raw.githack, then <base href> in       */
+    /* <head> (jsDelivr), then the copy next to index.html. Changelog and      */
+    /* version.json still come from <base>.                                    */
     /* ------------------------------------------------------------------ */
     function repoUrl(name) {
         var base = '';
@@ -29109,9 +29123,19 @@ _VIEWER_DL_JS +
         try { return new URL(name, GITHACK_RAW).href; } catch (e) { return GITHACK_RAW + name; }
     }
 
+    /* bust = true adds ?t=<now> so the CDN cannot answer from its own cache -
+       used for ping.json, the only feed that must be current this second. */
+    function ghUrl(name, bust) {
+        var u;
+        try { u = new URL(name, GH_RAW).href; } catch (e) { u = GH_RAW + name; }
+        if (bust) u += (u.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now();
+        return u;
+    }
+
     /* Walk the feed URLs in order. A host only counts when it answers with
-       JSON - a 404 page, an error body or a timeout moves to the next URL, so
-       raw.githack -> jsDelivr -> copy next to index.html always resolves. */
+       JSON - a 404 page, an error body, a stale-looking payload or a timeout
+       moves to the next URL, so GitHub raw -> raw.githack -> jsDelivr -> the
+       copy next to index.html always resolves. */
     function feedText(urls) {
         var i = 0;
         function next() {
@@ -29294,7 +29318,7 @@ _VIEWER_DL_JS +
     function pollPing() {
         if (pingBusy) return Promise.resolve();
         pingBusy = true;
-        return feedText([githackUrl('ping.json'), repoUrl('ping.json'), localUrl('ping.json')]).then(function (txt) {
+        return feedText([ghUrl('ping.json', true), githackUrl('ping.json'), repoUrl('ping.json'), localUrl('ping.json')]).then(function (txt) {
             var o = JSON.parse(txt);
             var item = (o && o.message)
                 ? { id: o.id, title: o.title, message: String(o.message) }
@@ -29484,7 +29508,7 @@ _VIEWER_DL_JS +
         var box = document.getElementById('kuroBroadcasts');
         var stat = document.getElementById('kuroBcStatus');
         if (!box) return;
-        var urls = [githackUrl('broadcasts.json'), repoUrl('broadcasts.json'), localUrl('broadcasts.json')];
+        var urls = [ghUrl('broadcasts.json'), githackUrl('broadcasts.json'), repoUrl('broadcasts.json'), localUrl('broadcasts.json')];
         var i = 0;
 
         function draw(list, note, status) {
