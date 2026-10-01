@@ -11125,14 +11125,42 @@ window._libcurlReady = true;
             try {
                 _INST_ID = window._sessionInstId;
                 if (!_INST_ID) {
-                    // Prefer sessionStorage so the same tab reloading keeps its ID,
-                    // but a newly opened copy gets a fresh one.
-                    _INST_ID = sessionStorage.getItem(_INST_META_KEY);
+                    // Durable first: the id must outlive the tab. sessionStorage dies
+                    // with the tab, so every reopen looked like a brand new profile -
+                    // favorites, open tabs and the "tutorial already seen" flag were
+                    // all written under an id nobody ever read back.
+                    try { _INST_ID = localStorage.getItem(_INST_META_KEY); } catch (e) {}
+                    if (!_INST_ID) {
+                        try { _INST_ID = sessionStorage.getItem(_INST_META_KEY); } catch (e) {}
+                    }
+                    if (!_INST_ID) {
+                        // Older builds derived the id from sessionStorage only, so the
+                        // data they wrote into localStorage carries an id we cannot
+                        // look up. Adopt the namespace that already has the most saved
+                        // keys so existing favorites/tabs are not orphaned.
+                        try {
+                            var _seenIds = {};
+                            for (var _i = 0; _i < localStorage.length; _i++) {
+                                var _k = localStorage.key(_i);
+                                var _m = _k && _k.match(/^(gi_[a-z0-9]+):kuro:/);
+                                if (_m) _seenIds[_m[1]] = (_seenIds[_m[1]] || 0) + 1;
+                            }
+                            var _bestId = null;
+                            for (var _id in _seenIds) {
+                                if (!_bestId || _seenIds[_id] > _seenIds[_bestId]) _bestId = _id;
+                            }
+                            _INST_ID = _bestId;
+                        } catch (e) {}
+                    }
                     if (!_INST_ID) {
                         _INST_ID = 'gi_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-                        sessionStorage.setItem(_INST_META_KEY, _INST_ID);
                     }
                     window._sessionInstId = _INST_ID;
+                    try {
+                        localStorage.setItem(_INST_META_KEY, _INST_ID);
+                    } catch (e) {
+                        try { sessionStorage.setItem(_INST_META_KEY, _INST_ID); } catch (e2) {}
+                    }
                 }
             } catch(e) {
                 _INST_ID = 'gi_fallback';
@@ -13736,10 +13764,26 @@ window._libcurlReady = true;
             // instead of fetching it directly from the top-level Kuro page.
             // data:/blob: URLs are applied as-is. `store` persists the source URL
             // so it survives reloads (blob URLs don't, so we re-proxy on load).
+            /* Session cache for the wallpaper. showNewTab(), the reload button and the
+               window resize handler all call loadSavedWallpaper() again, and every call
+               used to re-fetch the image through the WISP proxy - so hopping back to the
+               new tab flashed the gradient and sat there buffering until the relay
+               answered. Resolve it once, paint it instantly from here after that. */
+            let _wpSrc = null, _wpCss = null;
+
             async function applyBgFromUrl(url, store) {
                 if (!ntBg || !url) return;
+                if (_wpSrc === url && _wpCss) {
+                    ntBg.style.backgroundImage = _wpCss;
+                    ntBg.style.backgroundSize = "cover";
+                    ntBg.style.backgroundPosition = "center";
+                    if (store) { try { ls.setItem(WALLPAPER_STORAGE_KEY, url); } catch (_) { } }
+                    return;
+                }
                 if (/^(data:|blob:)/i.test(url)) {
-                    ntBg.style.backgroundImage = `url(${url})`;
+                    _wpSrc = url;
+                    _wpCss = `url(${url})`;
+                    ntBg.style.backgroundImage = _wpCss;
                     ntBg.style.backgroundSize = "cover";
                     ntBg.style.backgroundPosition = "center";
                     if (store) { try { ls.setItem(WALLPAPER_STORAGE_KEY, url); } catch (_) { } }
@@ -13749,7 +13793,9 @@ window._libcurlReady = true;
                     const r = await queueFetch(url, {}, PRIORITY.image);
                     if (!r.buf || !r.buf.byteLength) return;
                     const blobUrl = URL.createObjectURL(new Blob([r.buf], { type: r.mime || 'image/jpeg' }));
-                    ntBg.style.backgroundImage = `url(${blobUrl})`;
+                    _wpSrc = url;
+                    _wpCss = `url(${blobUrl})`;
+                    ntBg.style.backgroundImage = _wpCss;
                     ntBg.style.backgroundSize = "cover";
                     ntBg.style.backgroundPosition = "center";
                     if (store) { try { ls.setItem(WALLPAPER_STORAGE_KEY, url); } catch (_) { } }
@@ -13777,13 +13823,19 @@ window._libcurlReady = true;
                 if (!ntBg) return;
                 ntBg.style.backgroundSize = "cover";
                 ntBg.style.backgroundPosition = "center";
-                ntBg.style.backgroundImage = WALLPAPER_GRADIENTS[0];
-                try {
-                    const saved = ls.getItem(WALLPAPER_STORAGE_KEY);
-                    if (saved && (saved.startsWith("http") || saved.startsWith("data:"))) {
-                        applyBgFromUrl(saved, false);
+                let saved = null;
+                try { saved = ls.getItem(WALLPAPER_STORAGE_KEY); } catch (_) { }
+                if (saved && (saved.startsWith("http") || saved.startsWith("data:"))) {
+                    /* Already resolved this session: repaint, no fetch, no gradient flash. */
+                    if (_wpSrc === saved && _wpCss) {
+                        ntBg.style.backgroundImage = _wpCss;
+                        return;
                     }
-                } catch (_) { }
+                    ntBg.style.backgroundImage = WALLPAPER_GRADIENTS[0];
+                    applyBgFromUrl(saved, false);
+                    return;
+                }
+                ntBg.style.backgroundImage = WALLPAPER_GRADIENTS[0];
             }
 
             function loadFavorites() {
@@ -23440,6 +23492,11 @@ _VIEWER_DL_JS +
                     try {
                         if (ls.getItem(TUTORIAL_KEY) === 'done') return;
                     } catch (e) { }
+                    /* Second, namespace-independent flag: this must never show again
+                       just because the instance id (or localStorage) changed. */
+                    try {
+                        if (localStorage.getItem('kuro:tutorial:done') === '1') return;
+                    } catch (e) { }
                 }
                 tutIdx = 0;
                 tutActive = true;
@@ -23471,6 +23528,7 @@ _VIEWER_DL_JS +
                 if (svg) svg.style.opacity = '0';
                 setTimeout(() => { ov.style.display = 'none'; }, 350);
                 try { ls.setItem(TUTORIAL_KEY, 'done'); } catch (e) { }
+                try { localStorage.setItem('kuro:tutorial:done', '1'); } catch (e) { }
                
                 _kuroAnimLocked = false;
                 playKuroAnimation(400);
@@ -29038,7 +29096,7 @@ _VIEWER_DL_JS +
     'use strict';
 
     /* Build id embedded in THIS file - must match version.json when you ship. */
-    var KURO_BUILD = '2026-09-30.4';
+    var KURO_BUILD = '2026-09-30.5';
     /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
     var REPO_RAW = 'https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/';
     /* Live feeds (ping + broadcasts) read GitHub's own raw host first: it is
@@ -29056,6 +29114,18 @@ _VIEWER_DL_JS +
     };
 
     var EMBEDDED_CHANGELOG = [
+        {
+            build: '2026-09-30.5',
+            date: '2026-09-30',
+            title: 'Sticky state',
+            notes: [
+                'Favorites, open tabs and the "tutorial already seen" flag are now stored under a durable id - closing the browser no longer makes them disappear',
+                'raw.githack is cache-busted on every ping poll too, and feeds are read without waiting on the WISP relay, so a push shows up within 30 seconds',
+                'ping.json may now be an array of pings - each entry pops up exactly once, oldest first, newest last',
+                'The new tab wallpaper is resolved once per session instead of being re-downloaded every time you return to the new tab',
+                'The update feed and the changelog read raw.githubusercontent.com first, so new builds are noticed faster'
+            ]
+        },
         {
             build: '2026-09-30.4',
             date: '2026-09-30',
@@ -29119,8 +29189,13 @@ _VIEWER_DL_JS +
         try { return new URL(name, location.href).href; } catch (e) { return name; }
     }
 
-    function githackUrl(name) {
-        try { return new URL(name, GITHACK_RAW).href; } catch (e) { return GITHACK_RAW + name; }
+    function githackUrl(name, bust) {
+        var u;
+        try { u = new URL(name, GITHACK_RAW).href; } catch (e) { u = GITHACK_RAW + name; }
+        /* raw.githack answers from its own edge cache for minutes; a query string
+           changes the cache key so every 30s poll really is a fresh read. */
+        if (bust) u += (u.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now();
+        return u;
     }
 
     /* bust = true adds ?t=<now> so the CDN cannot answer from its own cache -
@@ -29141,7 +29216,7 @@ _VIEWER_DL_JS +
         function next() {
             if (i >= urls.length) return Promise.reject(new Error('all feeds failed'));
             var u = urls[i++];
-            return getText(u).then(function (t) { JSON.parse(t); return t; }).catch(function () { return next(); });
+            return getText(u, true).then(function (t) { JSON.parse(t); return t; }).catch(function () { return next(); });
         }
         return next();
     }
@@ -29158,15 +29233,19 @@ _VIEWER_DL_JS +
         return Promise.race([p, slow]);
     }
 
-    function getText(url) {
+    function getText(url, direct) {
         var errs = [];
 
-        var viaProxy = (typeof queueFetch === 'function' && typeof decodeBuf === 'function')
+        /* direct = a feed read (ping, version, changelog, broadcasts). Those hosts
+           are public and never need the WISP proxy; when the relay is down the
+           proxy hop used to burn up to 15s of every 30s poll before the plain
+           fetch underneath it ever ran - which is what made pings feel late. */
+        var viaProxy = (!direct && typeof queueFetch === 'function' && typeof decodeBuf === 'function')
             ? deadline(
                 queueFetch(url, { internal: true }, (typeof PRIORITY !== 'undefined' && PRIORITY.fetch) || 1)
                     .then(function (r) { return decodeBuf(r); }),
                 15000, 'proxy timeout')
-            : Promise.reject(new Error('no proxy'));
+            : Promise.reject(new Error(direct ? 'direct fetch' : 'no proxy'));
 
         return viaProxy.catch(function (e) {
             errs.push('proxy: ' + (e && e.message));
@@ -29298,12 +29377,28 @@ _VIEWER_DL_JS +
     function announce(item, channel) {
         var sig = [item.id || '', item.title || '', item.message || ''].join('\u0001');
         var key = 'kuro:ping:seen:' + channel;
-        var seen = store.getItem(key);
-        store.setItem(key, sig);
+        /* Seen set, not a single "last signature": ping.json can carry several
+           entries at once and each one has to be popped exactly once ever.
+           Old builds stored one raw signature - keep reading it. */
+        var raw = store.getItem(key);
+        var seenList = [];
+        try {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) seenList = parsed;
+            else if (raw) seenList = [raw];
+        } catch (e) {
+            if (raw) seenList = [raw];
+        }
+        var already = seenList.indexOf(sig) >= 0;
+        if (!already) {
+            seenList.push(sig);
+            if (seenList.length > 100) seenList = seenList.slice(-100);
+            store.setItem(key, JSON.stringify(seenList));
+        }
         var last = document.getElementById('kuroLastPing');
         if (last) last.textContent = (item.title ? item.title + ' - ' : '') + item.message;
         if (item.message) pushHistory(item);
-        if (seen === sig) return false;
+        if (already) return false;
         if (!item.message) return false;
         popup({
             icon: 'fa-tower-broadcast',
@@ -29318,12 +29413,18 @@ _VIEWER_DL_JS +
     function pollPing() {
         if (pingBusy) return Promise.resolve();
         pingBusy = true;
-        return feedText([ghUrl('ping.json', true), githackUrl('ping.json'), repoUrl('ping.json'), localUrl('ping.json')]).then(function (txt) {
+        return feedText([ghUrl('ping.json', true), githackUrl('ping.json', true), repoUrl('ping.json'), localUrl('ping.json')]).then(function (txt) {
             var o = JSON.parse(txt);
-            var item = (o && o.message)
-                ? { id: o.id, title: o.title, message: String(o.message) }
-                : null;
-            if (item && item.message) announce(item, 'repo');
+            /* ping.json may be ONE object or an ARRAY of them. An array is how you
+               ship several pings in one file (oldest first, newest last): every
+               entry that this browser has not seen yet pops once, and from then on
+               it is only an archive line - never a repeated popup. */
+            var list = Array.isArray(o) ? o : (o && o.message ? [o] : []);
+            for (var i = 0; i < list.length; i++) {
+                var p = list[i];
+                if (!p || !p.message) continue;
+                announce({ id: p.id, title: p.title, message: String(p.message) }, 'repo');
+            }
         }).catch(function () { }).then(done, done);
         function done() { pingBusy = false; }
     }
@@ -29388,7 +29489,7 @@ _VIEWER_DL_JS +
     function checkUpdate(manual) {
         if (updBusy) return Promise.resolve();
         updBusy = true;
-        return getJson(repoUrl('version.json')).catch(function () {
+        return feedText([ghUrl('version.json', true), githackUrl('version.json', true), repoUrl('version.json'), localUrl('version.json')]).catch(function () {
             return getJson(localUrl('version.json'));
         }).then(function (v) {
             if (!v || !v.build) throw new Error('empty feed');
@@ -29415,7 +29516,7 @@ _VIEWER_DL_JS +
     function renderChangelog() {
         var box = document.getElementById('kuroChangelog');
         if (!box) return;
-        var urls = [repoUrl('changelog.json'), localUrl('changelog.json')];
+        var urls = [ghUrl('changelog.json', true), githackUrl('changelog.json', true), repoUrl('changelog.json'), localUrl('changelog.json')];
         var i = 0;
 
         function draw(list) {
@@ -29469,7 +29570,7 @@ _VIEWER_DL_JS +
             if (Array.isArray(list) && list.length) { draw(list); return; }
             if (i < urls.length) {
                 var u = urls[i++];
-                getJson(u).then(function (r) { next(r); }, function () { next(null); });
+                getText(u, true).then(function (t) { next(JSON.parse(t)); }, function () { next(null); });
                 return;
             }
         }
@@ -29591,7 +29692,7 @@ _VIEWER_DL_JS +
             }
             if (i < urls.length) {
                 var u = urls[i++];
-                getJson(u).then(function (r) { next(r); }, function () { next(null); });
+                getText(u, true).then(function (t) { next(JSON.parse(t)); }, function () { next(null); });
                 return;
             }
             merge(null, 'Archive unreachable - showing broadcasts received by this browser.',
@@ -29632,7 +29733,7 @@ _VIEWER_DL_JS +
         setTimeout(function () { pollPing(); }, 4000);
         setTimeout(function () { checkUpdate(false); }, 9000);
 
-        setInterval(function () { if (!document.hidden) pollPing(); }, PING_MS);
+        setInterval(function () { pollPing(); }, PING_MS);
         setInterval(function () { if (!document.hidden) checkUpdate(false); }, UPDATE_MS);
 
         document.addEventListener('visibilitychange', function () {

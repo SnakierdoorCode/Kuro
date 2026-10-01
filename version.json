@@ -1,6 +1,6 @@
 {
-  "build": "2026-09-30.4",
+  "build": "2026-09-30.5",
   "date": "2026-09-30",
-  "title": "Fresh feeds",
-  "notes": "ping.json and broadcasts.json come from raw.githubusercontent.com first - a GitHub push reaches every open Kuro right away."
+  "title": "Sticky state",
+  "notes": "Favorites, tabs and the tutorial flag now survive closing the browser; pings reach every open Kuro within 30 seconds; ping.json accepts a list of pings."
 }

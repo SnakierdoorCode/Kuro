@@ -1,5 +1,17 @@
 [
   {
+    "build": "2026-09-30.5",
+    "date": "2026-09-30",
+    "title": "Sticky state",
+    "notes": [
+      "Favorites, open tabs and the tutorial-seen flag are stored under a durable id, so closing the browser no longer wipes them",
+      "raw.githack is cache-busted on every ping poll and feeds skip the WISP relay, so a push to GitHub pops within 30 seconds",
+      "ping.json can now be an array - several pings in one file, each popping exactly once (oldest first, newest last)",
+      "The new tab wallpaper is downloaded once per session instead of every time you come back to the new tab",
+      "Update feed and changelog read raw.githubusercontent.com first"
+    ]
+  },
+  {
     "build": "2026-09-30.4",
     "date": "2026-09-30",
     "title": "Fresh feeds",
