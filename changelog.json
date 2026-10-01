@@ -1,5 +1,14 @@
 [
   {
+    "build": "2026-09-30.6",
+    "date": "2026-09-30",
+    "title": "Wallpaper that loads",
+    "notes": [
+      "New tab background falls back to a direct download after 10s (or on failure) when the relay is down, instead of sitting on the gradient forever",
+      "Still fetched once per session - resize, reload and returning to the new tab reuse the picture instead of downloading it again"
+    ]
+  },
+  {
     "build": "2026-09-30.5",
     "date": "2026-09-30",
     "title": "Sticky state",

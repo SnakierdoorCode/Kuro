@@ -1,6 +1,6 @@
 {
-  "build": "2026-09-30.5",
+  "build": "2026-09-30.6",
   "date": "2026-09-30",
-  "title": "Sticky state",
-  "notes": "Favorites, tabs and the tutorial flag now survive closing the browser; pings reach every open Kuro within 30 seconds; ping.json accepts a list of pings."
+  "title": "Wallpaper that loads",
+  "notes": "The new tab background downloads directly when the relay is down and is reused for the whole session instead of reloading every time you come back."
 }

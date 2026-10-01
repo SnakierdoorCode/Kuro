@@ -13789,17 +13789,36 @@ window._libcurlReady = true;
                     if (store) { try { ls.setItem(WALLPAPER_STORAGE_KEY, url); } catch (_) { } }
                     return;
                 }
+                /* Relay first (it is what survives school filters), but never let a
+                   dead or slow relay hold the background hostage: after 10s, or on
+                   failure, fetch the image directly. Without that fallback the new
+                   tab sat on the gradient and looked like it was buffering. */
+                let buf = null, mime = null;
+                const viaRelay = Promise.resolve().then(function () {
+                    return queueFetch(url, {}, PRIORITY.image);
+                }).then(function (r) { return (r && r.buf && r.buf.byteLength) ? r : null; }, function () { return null; });
+                const relayTimeout = new Promise(res => setTimeout(() => res(null), 10000));
                 try {
-                    const r = await queueFetch(url, {}, PRIORITY.image);
-                    if (!r.buf || !r.buf.byteLength) return;
-                    const blobUrl = URL.createObjectURL(new Blob([r.buf], { type: r.mime || 'image/jpeg' }));
-                    _wpSrc = url;
-                    _wpCss = `url(${blobUrl})`;
-                    ntBg.style.backgroundImage = _wpCss;
-                    ntBg.style.backgroundSize = "cover";
-                    ntBg.style.backgroundPosition = "center";
-                    if (store) { try { ls.setItem(WALLPAPER_STORAGE_KEY, url); } catch (_) { } }
-                } catch (_) { /* leave the gradient fallback showing */ }
+                    const r = await Promise.race([viaRelay, relayTimeout]);
+                    if (r) { buf = r.buf; mime = r.mime; }
+                } catch (_) { }
+                if (!buf) {
+                    try {
+                        const res = await fetch(url, { cache: 'force-cache' });
+                        if (res && res.ok) {
+                            buf = await res.arrayBuffer();
+                            mime = (res.headers.get('content-type') || '').split(';')[0];
+                        }
+                    } catch (_) { /* CORS or network: keep the gradient */ }
+                }
+                if (!buf || !buf.byteLength) return;
+                const blobUrl = URL.createObjectURL(new Blob([buf], { type: mime || 'image/jpeg' }));
+                _wpSrc = url;
+                _wpCss = `url(${blobUrl})`;
+                ntBg.style.backgroundImage = _wpCss;
+                ntBg.style.backgroundSize = "cover";
+                ntBg.style.backgroundPosition = "center";
+                if (store) { try { ls.setItem(WALLPAPER_STORAGE_KEY, url); } catch (_) { } }
             }
 
             function setNewTabWallpaper() {
@@ -29096,7 +29115,7 @@ _VIEWER_DL_JS +
     'use strict';
 
     /* Build id embedded in THIS file - must match version.json when you ship. */
-    var KURO_BUILD = '2026-09-30.5';
+    var KURO_BUILD = '2026-09-30.6';
     /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
     var REPO_RAW = 'https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/';
     /* Live feeds (ping + broadcasts) read GitHub's own raw host first: it is
@@ -29114,6 +29133,15 @@ _VIEWER_DL_JS +
     };
 
     var EMBEDDED_CHANGELOG = [
+        {
+            build: '2026-09-30.6',
+            date: '2026-09-30',
+            title: 'Wallpaper that loads',
+            notes: [
+                'The new tab background falls back to a direct download after 10 seconds (or on failure) when the relay is down, instead of sitting on the gradient',
+                'It is still fetched once per session - resizing, reload and returning to the new tab reuse the picture instead of downloading it again'
+            ]
+        },
         {
             build: '2026-09-30.5',
             date: '2026-09-30',
