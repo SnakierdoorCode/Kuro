@@ -2,8 +2,9 @@
 <html lang="en">
 
 <head>
-    <!-- One base for everything Kuro reads from the repo: ping, broadcasts,
-         changelog and version.json all resolve against the URL below. -->
+    <!-- One base for everything Kuro reads from the repo: changelog and
+         version.json resolve against the URL below, and it is the second
+         choice for ping.json/broadcasts.json after raw.githack. -->
     <base href="https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/">
     <!-- Vendored acorn 8.14.0 + acorn-walk 8.3.4 (MIT), minified. Powers the
          AST-based location rewriter in the page renderer (see rewriteLocationRefs).
@@ -8394,8 +8395,8 @@ const UNI_JUMBO=/^(\s*(\p{Emoji_Presentation}|\p{Extended_Pictographic}|<a?:\w+:
 function renderMarkdown(text, big){
   if(!text) return '';
   const codes=[]; // protect code blocks
-  text=text.replace(/```(?:(\w+)\n)?([\s\S]*?)```/g,(m,l,c)=>{codes.push(`<pre class="block">${esc(c)}</pre>`);return ` ${codes.length-1} `;});
-  text=text.replace(/`([^`\n]+)`/g,(m,c)=>{codes.push(`<code class="inline">${esc(c)}</code>`);return ` ${codes.length-1} `;});
+  text=text.replace(/```(?:(\w+)\n)?([\s\S]*?)```/g,(m,l,c)=>{codes.push(`<pre class="block">${esc(c)}</pre>`);return ` ${codes.length-1} `;});
+  text=text.replace(/`([^`\n]+)`/g,(m,c)=>{codes.push(`<code class="inline">${esc(c)}</code>`);return ` ${codes.length-1} `;});
   let h=esc(text);
   // custom emoji
   h=h.replace(/&lt;(a?):(\w+):(\d+)&gt;/g,(m,a,n,id)=>imgTag(`${CDN}/emojis/${id}.${a?'gif':'png'}?size=48`,'emoji'+(big?' jumbo':''),':'+n+':'));
@@ -8422,7 +8423,7 @@ function renderMarkdown(text, big){
   h=h.replace(/\*([^*]+)\*/g,'<i>$1</i>').replace(/(?<!\w)_([^_]+)_(?!\w)/g,'<i>$1</i>');
   h=h.replace(/~~([^~]+)~~/g,'<s>$1</s>');
   // restore code
-  h=h.replace(/ (\d+) /g,(m,i)=>codes[+i]);
+  h=h.replace(/ (\d+) /g,(m,i)=>codes[+i]);
   return h;
 }
 
@@ -29036,9 +29037,12 @@ _VIEWER_DL_JS +
     'use strict';
 
     /* Build id embedded in THIS file - must match version.json when you ship. */
-    var KURO_BUILD = '2026-09-30.2';
+    var KURO_BUILD = '2026-09-30.3';
     /* Same files, served from the repo CDN (works when GitHub Pages is slow/unreachable). */
     var REPO_RAW = 'https://cdn.jsdelivr.net/gh/SnakierdoorCode/Kuro@main/';
+    /* Live feeds (ping + broadcasts) read raw.githack first: it reflects a
+       push in seconds, while jsDelivr can serve a stale copy for minutes. */
+    var GITHACK_RAW = 'https://raw.githack.com/SnakierdoorCode/Kuro/main/';
     var PING_MS = 30000;
     var UPDATE_MS = 60000;
 
@@ -29049,6 +29053,16 @@ _VIEWER_DL_JS +
     };
 
     var EMBEDDED_CHANGELOG = [
+        {
+            build: '2026-09-30.3',
+            date: '2026-09-30',
+            title: 'Instant pings',
+            notes: [
+                'ping.json and broadcasts.json are read from raw.githack first - a push to GitHub reaches every open Kuro within 30 seconds',
+                'A broadcast now pops up even for a browser that has never received one before',
+                'Falls back to the jsDelivr copy, then to the file next to index.html, when a host is unreachable'
+            ]
+        },
         {
             build: '2026-09-30.2',
             date: '2026-09-30',
@@ -29076,9 +29090,9 @@ _VIEWER_DL_JS +
     ];
 
     /* ------------------------------------------------------------------ */
-    /* Feed URLs - <base href> in <head> is the single place that says      */
-    /* where the repo lives, so ping, broadcasts, changelog and version     */
-    /* all come from it; a copy next to index.html is the fallback.         */
+    /* Feed URLs - ping and broadcasts try raw.githack first (instant after  */
+    /* a push), then <base href> in <head> (jsDelivr), then the copy next   */
+    /* to index.html. Changelog and version.json still come from <base>.    */
     /* ------------------------------------------------------------------ */
     function repoUrl(name) {
         var base = '';
@@ -29089,6 +29103,23 @@ _VIEWER_DL_JS +
 
     function localUrl(name) {
         try { return new URL(name, location.href).href; } catch (e) { return name; }
+    }
+
+    function githackUrl(name) {
+        try { return new URL(name, GITHACK_RAW).href; } catch (e) { return GITHACK_RAW + name; }
+    }
+
+    /* Walk the feed URLs in order. A host only counts when it answers with
+       JSON - a 404 page, an error body or a timeout moves to the next URL, so
+       raw.githack -> jsDelivr -> copy next to index.html always resolves. */
+    function feedText(urls) {
+        var i = 0;
+        function next() {
+            if (i >= urls.length) return Promise.reject(new Error('all feeds failed'));
+            var u = urls[i++];
+            return getText(u).then(function (t) { JSON.parse(t); return t; }).catch(function () { return next(); });
+        }
+        return next();
     }
 
     /* ------------------------------------------------------------------ */
@@ -29248,7 +29279,6 @@ _VIEWER_DL_JS +
         var last = document.getElementById('kuroLastPing');
         if (last) last.textContent = (item.title ? item.title + ' - ' : '') + item.message;
         if (item.message) pushHistory(item);
-        if (seen === null || seen === undefined || seen === '') return false;
         if (seen === sig) return false;
         if (!item.message) return false;
         popup({
@@ -29264,8 +29294,7 @@ _VIEWER_DL_JS +
     function pollPing() {
         if (pingBusy) return Promise.resolve();
         pingBusy = true;
-        var url = repoUrl('ping.json');
-        return getText(url).catch(function () { return getText(localUrl('ping.json')); }).then(function (txt) {
+        return feedText([githackUrl('ping.json'), repoUrl('ping.json'), localUrl('ping.json')]).then(function (txt) {
             var o = JSON.parse(txt);
             var item = (o && o.message)
                 ? { id: o.id, title: o.title, message: String(o.message) }
@@ -29455,7 +29484,7 @@ _VIEWER_DL_JS +
         var box = document.getElementById('kuroBroadcasts');
         var stat = document.getElementById('kuroBcStatus');
         if (!box) return;
-        var urls = [repoUrl('broadcasts.json'), localUrl('broadcasts.json')];
+        var urls = [githackUrl('broadcasts.json'), repoUrl('broadcasts.json'), localUrl('broadcasts.json')];
         var i = 0;
 
         function draw(list, note, status) {
